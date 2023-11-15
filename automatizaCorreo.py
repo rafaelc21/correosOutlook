@@ -20,35 +20,35 @@ messages = inbox.Items
 correo = {}
 
 for mensaje in messages:
-    correo ={ 
-        'Tipo': 1,
-        'Subject' : mensaje.Subject,
-        'SenderName' : mensaje.SenderName,
-        'ReceivedTime' : mensaje.ReceivedTime,
-        'Body' : mensaje.Body,
-        'CC' : mensaje.CC,
-        'BCC' : mensaje.BCC,
-        'SentOn' : mensaje.SentOn,
-        'Recipients': [],
-        'HTMLBody' : Binary(mensaje.HTMLBody.encode('utf-8')),  # Codificar la cadena en bytes
-        'Attachments': []
+    correo = {
+        'Tipo': 1,  # Tipo de correo (puedes personalizar según tus necesidades)
+        'Tema': mensaje.Subject,  # Asunto del correo
+        'EnviadoPor': mensaje.SenderName,  # Remitente del correo
+        'Recibido': str(mensaje.ReceivedTime)[:19],  # Fecha y hora de recepción
+        'Cuerpo': mensaje.Body,  # Cuerpo del correo en texto sin formato
+        'CC': mensaje.CC,  # Copia de carbón (CC) del correo
+        'BCC': mensaje.BCC,  # Copia oculta (BCC) del correo
+        'Enviado': str(mensaje.SentOn)[:19],  # Fecha y hora de envío
+        'Destinatarios': [],  # Lista para almacenar información de destinatarios
+        'HTMLBody': mensaje.HTMLBody.encode('utf-8'),  # Cuerpo del correo en formato HTML codificado en UTF-8
+        'Adjuntos': []  # Lista para almacenar información de adjuntos
     }
+    
     correo_attachment = {
     }
     # Obtener información sobre los destinatarios
     recipients = mensaje.Recipients
     if recipients:
-        print("Destinatarios:")
         for i, recipient in enumerate(recipients):
             try:
                 # Acceder a las propiedades relevantes del destinatario
                 recipient_info = {
                     'Nombre': recipient.Name,
-                    'Dirección de correo': recipient.Address
+                    'DireccionCorreo': recipient.Address
                 }
 
                 # Agregar información del destinatario al documento
-                correo['Recipients'].append(recipient_info)
+                correo['Detinatarios'].append(recipient_info)
             except Exception as e:
                 print(f'Error al procesar destinatario: {str(e)}')
 
@@ -74,14 +74,17 @@ for mensaje in messages:
                 }
 
                 # Agregar información del adjunto al documento
-                correo['Attachments'].append(attachment_info)
+                correo['Adjuntos'].append(attachment_info)
             except Exception as e:
                 print(f'Error al procesar adjunto: {str(e)}')
     else:
         print("No hay adjuntos.")
-    print(correo)    
-    collection.insert_one(correo)    
 
+    # Mostrar información del correo en la consola / Solo para revisar que esta enviando. Se puede omitir     
+    print(correo)    
+
+     # Insertar el documento del correo en la colección MongoDB
+    collection.insert_one(correo)    
 
 # Cerrar la conexión
 client.close()
@@ -119,15 +122,3 @@ client.close()
 #HTMLBody: Cuerpo del mensaje en formato HTML.
 
 
-#print(f'Subject: {mensaje.Subject}')
-#    print(f'De: {mensaje.SenderName}')
-#    print(f'Recibido: {mensaje.ReceivedTime}')
-#    print(f'Cuerpo: {mensaje.Body}')
-#    print(f'CC: {mensaje.CC}')
-#    print(f'BCC: {mensaje.BCC}')
-#    print(f'Adjuntos: {len(mensaje.Attachments)}')
-#    print(f'SentOn: {mensaje.SentOn}')
-#    print(f'Importance: {mensaje.Importance}')
-#    print(f'Categorías: {mensaje.Categories}')
-#    print(f'Destinatarios: {", ".join([recipient.Name for recipient in mensaje.Recipients])}')
-#    print(f'HTMLBody: {mensaje.HTMLBody}')
